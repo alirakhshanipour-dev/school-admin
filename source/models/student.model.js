@@ -1,7 +1,19 @@
+import createHttpError from "http-errors";
 import { DataTypes, Model } from "sequelize";
 
 class Student extends Model {
-    static associate(models) { }
+    static associate(models) {
+
+    }
+
+
+    static async findStudent(id) {
+        const student = await Student.findOne({ where: { id } })
+        if (!student) {
+            throw new createHttpError.NotFound("دانش‌آموزی با این مشخصات پیدا نشد")
+        }
+        return student
+    }
 }
 
 function initStudent(sequelize) {
