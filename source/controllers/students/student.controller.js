@@ -58,7 +58,24 @@ export const StudentController = (() => {
             }
         }
 
+        // delete student
+        async deleteStudent(req, res, next) {
+            try {
+                const { id: studentId } = req.params
+                const student = await this.#model.findStudent(studentId)
+                await student.destroy()
+
+                res.status(STATUS.ACCEPTED).json({
+                    success: true,
+                    message: StudentMsg.STUDENT_DELETED
+                })
+            } catch (error) {
+                next(error)
+            }
+        }
+
     }
 
     return new StudentController()
 })()
+
