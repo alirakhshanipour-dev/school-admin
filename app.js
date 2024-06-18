@@ -6,19 +6,26 @@ import { sequelize, sequelizeConfig } from "./source/configs/database/postgres.c
 import { notFoundHandler } from "./source/services/errors/notFoundHandler.js"
 import { allExeptionHandler } from "./source/services/errors/allExeption.js"
 import { MainRouter } from "./source/routes/main.routes.js"
+import cors from 'cors';
+import { sequelizeErrorHandler } from "./source/services/errors/sequelizeError.js"
 config()
 
 const mainApp = () => {
     const app = e()
+    app.use(cors());
     app.use(morgan("dev"))
+    app.use(e.static("public"))
     app.use(e.json())
     app.use(e.urlencoded({ extended: true }))
     app.use("/", MainRouter)
 
     swaggerConfig(app)
     sequelizeConfig(sequelize)
-    notFoundHandler(app)
+
+    // Error Handlers
     allExeptionHandler(app)
+    sequelizeErrorHandler(app)
+    notFoundHandler(app)
 
     const port = process.env.PORT || 3000
     app.listen(port, () => {

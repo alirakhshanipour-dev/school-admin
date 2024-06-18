@@ -1,3 +1,5 @@
+import { StatusCodes } from "http-status-codes";
+
 export const allExeptionHandler = (app) => {
     app.use((err, req, res, next) => {
         const status = err.status || err.statusCode || 500
@@ -7,5 +9,6 @@ export const allExeptionHandler = (app) => {
             status,
             message
         })
+        next()
     })
 }

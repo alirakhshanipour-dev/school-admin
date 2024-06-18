@@ -1,27 +1,74 @@
 import createHttpError from "http-errors";
-import { DataTypes, Model } from "sequelize";
+import { DataTypes, Model, Op } from "sequelize";
+import _ from "lodash"
 
 class Student extends Model {
     static associate(models) {
 
     }
 
-
+    // customized method for finding student
     static async findStudent(id) {
-        const student = await Student.findOne({ where: { id } })
-        if (!student) {
-            throw new createHttpError.NotFound("دانش‌آموزی با این مشخصات پیدا نشد")
+        const student = await Student.findOne({ where: { id } });
+        return student ?
+            student :
+            (() => { throw new createHttpError.NotFound("دانش‌آموزی با این مشخصات پیدا نشد") })();
+    }
+
+    // find students with filtering data
+    static async findStudentsWithFilter(filters) {
+        const { page = 1, limit = 10, ...filterParams } = filters;
+        const offset = (page - 1) * limit;
+
+        const where = {};
+        for (const [key, value] of Object.entries(filterParams)) {
+            if (value) {
+                where[key] = { [Op.like]: `%${value}%` };
+            }
         }
-        return student
+
+        const { count, rows } = await this.findAndCountAll({
+            where,
+            limit: parseInt(limit, 10),
+            offset: parseInt(offset, 10),
+            attributes: {
+                exclude: ["createdAt", "updatedAt"]
+            }
+        });
+
+        return {
+            totalRecords: count,
+            totalPages: Math.ceil(count / limit),
+            currentPage: page,
+            students: rows
+        };
+    }
+
+    // destru all the students
+    static async destroyAllStudents() {
+        await Student.destroy({
+            where: {}, // No conditions, so it deletes all records
+            truncate: true // This ensures the table is truncated, i.e., all rows are deleted
+        });
+    }
+
+    static async updateStudent(id, studentData) {
+        const filteredStudentData = _.pickBy(studentData, value => value !== null && value !== undefined && value !== '');
+        await this.findStudent(id)
+        const updatedStudent = await this.update(filteredStudentData, {
+            where: { id }
+        });
+
+        return updatedStudent;
     }
 }
 
 function initStudent(sequelize) {
     return Student.init({
         id: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.UUID,
+            defaultValue: DataTypes.UUIDV4,
             primaryKey: true,
-            autoIncrement: true
         },
         first_name: {
             type: DataTypes.STRING,
@@ -70,12 +117,17 @@ function initStudent(sequelize) {
         national_code: {
             type: DataTypes.STRING,
             allowNull: false,
+            unique: true,
             validate: {
                 notEmpty: {
+                    msg: "کد ملی نمیتواند خالی بماند"
+                },
+                notNull: {
                     msg: "کد ملی نمیتواند خالی بماند"
                 }
             }
         },
+
         birth_date: {
             type: DataTypes.DATEONLY,
             allowNull: false,
@@ -86,6 +138,9 @@ function initStudent(sequelize) {
             validate: {
                 notEmpty: {
                     msg: "استان محل تولد نمیتواند خالی بماند"
+                },
+                notNull: {
+                    msg: "استان محل تولد نمیتواند خالی بماند"
                 }
             }
         },
@@ -94,6 +149,9 @@ function initStudent(sequelize) {
             allowNull: false,
             validate: {
                 notEmpty: {
+                    msg: "شهر محل تولد نمیتواند خالی بماند"
+                },
+                notNull: {
                     msg: "شهر محل تولد نمیتواند خالی بماند"
                 }
             }

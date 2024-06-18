@@ -31,5 +31,8 @@ const swaggerSpec = swaggerJSDoc(options);
 // Middleware function to set up Swagger UI
 export const swaggerConfig = (app) => {
     // Serve Swagger UI on /api-docs endpoint
-    app.use('/api-docs', serve, setup(swaggerSpec));
+    app.use('/api-docs', serve, setup(swaggerSpec, {
+        customCssUrl: "/css/customize-swagger.css",
+        customJs: "/js/customize-swagger.js",
+    }));
 };

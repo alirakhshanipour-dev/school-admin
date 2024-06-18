@@ -6,5 +6,6 @@ export const notFoundHandler = (app) => {
             status,
             message
         })
+        next()
     })
 }
