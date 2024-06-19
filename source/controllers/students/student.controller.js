@@ -110,7 +110,6 @@ export const StudentController = (() => {
 
 
     }
-
     return new StudentController()
 })()
 

@@ -1,5 +1,7 @@
 import { Sequelize } from "sequelize";
 import { initStudent } from "../../models/student.model.js";
+import { initTeacher } from "../../models/teacher.model.js";
+import { initUser } from "../../models/user.model.js";
 
 
 
@@ -15,6 +17,8 @@ const sequelize = new Sequelize({
 
 const models = {
     Student: initStudent(sequelize),
+    Teacher: initTeacher(sequelize),
+    User: initUser(sequelize),
 }
 
 

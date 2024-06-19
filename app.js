@@ -8,6 +8,9 @@ import { allExeptionHandler } from "./source/services/errors/allExeption.js"
 import { MainRouter } from "./source/routes/main.routes.js"
 import cors from 'cors';
 import { sequelizeErrorHandler } from "./source/services/errors/sequelizeError.js"
+import session from "express-session"
+import passport from "passport"
+import { passportConfig } from "./source/configs/auth/passport.conf.js"
 config()
 
 const mainApp = () => {
@@ -19,9 +22,20 @@ const mainApp = () => {
     app.use(e.urlencoded({ extended: true }))
     app.use("/", MainRouter)
 
+    app.use(session({
+        secret: 'your_session_secret',
+        resave: false,
+        saveUninitialized: true,
+    }));
+
+    app.use(passport.initialize());
+    app.use(passport.session());
+
+
     swaggerConfig(app)
     sequelizeConfig(sequelize)
 
+    passportConfig(passport)
     // Error Handlers
     allExeptionHandler(app)
     sequelizeErrorHandler(app)

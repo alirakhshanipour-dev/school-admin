@@ -9,10 +9,42 @@ const swaggerDefinition = {
         version: '1.0.0',
         description: "API's of school admin panel",
     },
+    components: {
+        securitySchemes: {
+            BearerAuth: {
+                type: 'http',
+                scheme: 'bearer',
+                bearerFormat: 'JWT',
+            },
+        },
+    },
+    security: [
+        {
+            BearerAuth: [],
+        },
+    ],
     servers: [
         {
             url: 'http://localhost:3000', // Change this to your server's URL
             description: 'Development server',
+        },
+    ],
+    tags: [
+        {
+            name: 'Authentication',
+            description: 'Endpoints related to authentication'
+        },
+        {
+            name: 'Users',
+            description: 'Endpoints related to user management'
+        },
+        {
+            name: 'Teachers',
+            description: 'Endpoints related to teacher management'
+        },
+        {
+            name: 'Students',
+            description: 'Endpoints related to student management'
         },
     ],
 };
@@ -22,7 +54,10 @@ const options = {
     // Path to Swagger definition files
     path: [],
     // Path to API route files
-    apis: [path.join(process.cwd(), "source", "controllers", "**", "*.swagger.js")],
+    apis: [
+        path.join(process.cwd(), "source", "controllers", "**", "*.swagger.js"),
+        path.join(process.cwd(), "source", "services", "**", "*.swagger.js")
+    ],
 };
 
 // Generate Swagger specification
